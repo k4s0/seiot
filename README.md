@@ -1,2 +1,1 @@
-# seiot
-EMBEDDED SYSTEMS AND INTERNET-OF-THINGS
+sistemi_embedded
