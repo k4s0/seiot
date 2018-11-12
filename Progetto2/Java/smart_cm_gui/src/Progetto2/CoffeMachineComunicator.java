@@ -9,7 +9,7 @@ public class CoffeMachineComunicator {
 	private volatile boolean canRefillCoffe;
 
 	public CoffeMachineComunicator(String port, int rate) throws Exception {
-		this.serialChannel = new SerialCommChannel("COM6", rate);
+		this.serialChannel = new SerialCommChannel("COM9", rate);
 	}
 
 	void setView(CoffeMachineViewImpl view) throws Exception {
@@ -41,11 +41,24 @@ public class CoffeMachineComunicator {
 					while (true) {
 						if (serialChannel.isMsgAvailable()) {
 							String msg = serialChannel.receiveMsg().trim();
-							view.printMessage(MessageFromSerial.getCorrectMessage(msg));
-							if ((msg).equals(MessageFromSerial.NOMORECOFFE.getId())) {
-								System.out.println(
-										"[CoffeMachineComunicator] " + MessageFromSerial.getCorrectMessage(msg));
-								canRefillCoffe = true;
+							/*msg = MessageFromSerial.getCorrectMessage(msg);
+							System.out.println(msg);
+							if (!msg.equals("")) {
+								view.printMessage(msg);
+								if ((msg).equals(MessageFromSerial.NOMORECOFFE.getMessageToPrint())) {
+									System.out.println(
+											"[CoffeMachineComunicator] " + MessageFromSerial.getCorrectMessage(msg));
+									canRefillCoffe = true;
+								}
+								if((msg).equals(MessageFromSerial.REFRESH.getMessageToPrint())) {
+									view.printMessage("");
+								}
+							}*/
+							if(msg.equals("n")) {
+								view.printMessage(MessageFromSerial.getCorrectMessage(msg));
+							} else if( msg.equals("w")) {
+
+								view.printMessage(MessageFromSerial.getCorrectMessage(msg));
 							}
 
 						}

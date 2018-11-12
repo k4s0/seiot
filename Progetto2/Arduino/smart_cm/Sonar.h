@@ -9,6 +9,7 @@ class Sonar {
   private:
     int pinTrig;
     int pinEcho;
+    float average;
 };
 
 #endif

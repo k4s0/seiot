@@ -7,9 +7,15 @@
 
 extern bool isPresent;
 extern bool correctDistance;
+extern bool maintenanceActive;
+extern bool reStart;
+extern bool coffeReady;
+extern bool coffeTaked;
+extern bool newCoffe;
 
 class DetectMotion : public Task {
-    int pinPir;
+private:
+    int pinPir; 
     int pinTrig;
     int pinEcho;
     int state;
@@ -17,10 +23,11 @@ class DetectMotion : public Task {
     float distance;
     Sonar *sonar;
     Pir *pir;
-  private:
     void dmIsNear();
     void dmIsFar();
     void dmIsGone();
+    void dmWait();
+    void dmTakingCoffe();
   public:
     DetectMotion(int pinPir, int pinTrig, int pinEcho);
     void init(int period);

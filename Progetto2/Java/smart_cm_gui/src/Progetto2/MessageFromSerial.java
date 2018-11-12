@@ -1,6 +1,7 @@
 package Progetto2;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 public enum MessageFromSerial {
 	WELCOME {
@@ -16,7 +17,7 @@ public enum MessageFromSerial {
 		}
 
 	},
-	MACKINGCOFFE {
+	MAKINGCOFFE {
 
 		@Override
 		public String getId() {
@@ -25,7 +26,7 @@ public enum MessageFromSerial {
 
 		@Override
 		public String getMessageToPrint() {
-			return "Macking Coffe...";
+			return "Making Coffe...";
 		}
 
 	},
@@ -51,8 +52,22 @@ public enum MessageFromSerial {
 
 		@Override
 		public String getMessageToPrint() {
-			return "No more coffe MANTEINANCE";
+			return "No more coffe MAINTENANCE";
 		}
+	},
+	
+	REFRESH{
+
+		@Override
+		public String getId() {
+			return "t";
+		}
+
+		@Override
+		public String getMessageToPrint() {
+			return "refresh";
+		}
+		
 	};
 
 	abstract public String getId();
@@ -64,7 +79,12 @@ public enum MessageFromSerial {
 	}
 
 	public static String getCorrectMessage(String c) {
-		return Arrays.asList(MessageFromSerial.values()).stream().filter(i -> i.getId().equals(c)).findFirst()
-				.get().getMessageToPrint();
+		Optional<MessageFromSerial> m = Arrays.asList(MessageFromSerial.values()).stream()
+				.filter(i -> i.getId().equals(c)).findFirst();
+		if (m.isPresent()) {
+			return m.get().getMessageToPrint();
+		} else {
+			return "";
+		}
 	}
 }

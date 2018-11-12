@@ -6,6 +6,7 @@ Sonar :: Sonar(int analogPin1, int analogPin2) {
   this->pinEcho = analogPin2;
   pinMode(pinEcho, INPUT);
   pinMode(pinTrig, OUTPUT);
+  average = 0;
 }
 
 float Sonar :: getDistance() {
@@ -16,5 +17,6 @@ float Sonar :: getDistance() {
   digitalWrite(pinTrig, LOW);
   float tu = pulseIn(pinEcho, HIGH);
   float t = tu / 1000.0 / 1000.0 / 2;
-  return t * vs;
+  average = average * 0.7 + t * vs * 0.3;
+  return average;
 }

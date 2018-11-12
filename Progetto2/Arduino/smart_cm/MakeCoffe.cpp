@@ -19,9 +19,13 @@ void MakeCoffe :: init(int period) {
 }
 
 void MakeCoffe :: tick() {
+  if(maintenanceActive){
+    return;
+  }
   if (state == -1 && newCoffe) {
     state = 0;
     newCoffe = false;
+    Serial.println("LED 1");
     led[state]->switchOn();
     return;
   }
@@ -40,6 +44,7 @@ void MakeCoffe :: tick() {
     }
 
     if (state != 0) led[state - 1]->switchOff();
+    Serial.println("LED " + String(state));
     led[state]->switchOn();
   }
 }

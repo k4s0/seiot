@@ -3,9 +3,10 @@
 
 #define DIST1 0.3
 #define DIST2 0.1
-#define DT1 500
-#define DT2A 500
-#define DT2B 500
+#define DT1 5000
+#define DT2A 5000
+#define DT2B 5000
+#define DT4 5000
 
 DetectMotion :: DetectMotion(int pinPir, int pinTrig, int pinEcho) {
   this->pinPir = pinPir;
@@ -22,18 +23,20 @@ void DetectMotion :: init(int period) {
   pir = new Pir(pinPir);
   sonar = new Sonar(pinTrig, pinEcho);
 }
+
 void DetectMotion :: dmIsNear() {
-  Serial.println("Stato 1");
+  Serial.println("DM1");
   distance = sonar->getDistance();
   if (distance <= DIST1) {
-    Serial.println("Distanza di Engage ! dist-> " + String(distance));
+    Serial.println("[DM1]Distanza giusta dist-> " + String(distance));
     count++;
   } else {
     count = 0;
-    Serial.println("Distanza di Engage Fallita");
+    Serial.println("[DM1]Distanza sbagliata");
+    correctDistance = false;
     isPresent = pir->isPresent();
     if (!isPresent) {
-      Serial.println("Nessuna presenza sul PIR");
+      Serial.println("[DM1]Nessuna presenza sul PIR");
       state = 0;
       return;
     }
@@ -45,10 +48,16 @@ void DetectMotion :: dmIsNear() {
   }
   return;
 }
+
 void DetectMotion :: dmIsFar() {
-  Serial.println("Stato 2");
+  Serial.println("[DM2] " + String(newCoffe));
+  if (newCoffe) {
+    count = 0;
+    state = 4;
+    return;
+  }
   distance = sonar->getDistance();
-  count = distance < DIST1 ? count + 1 : 0;
+  count = distance > DIST1 ? count + 1 : 0;
   if (count * myPeriod > DT1) {
     count = 0;
     correctDistance = false;
@@ -56,15 +65,16 @@ void DetectMotion :: dmIsFar() {
   }
   return;
 }
+
 void DetectMotion :: dmIsGone() {
-  Serial.println("Stato 3");
-  isPresent = pir->isPresent();
+  Serial.println("[DM3]");
   if (count * myPeriod > DT2B) {
     isPresent = false;
     count = 0;
     state = 0;
+    return;
   }
-  if (!isPresent) {
+  if (!pir->isPresent()) {
     count++;
   } else {
     count = 0;
@@ -73,15 +83,51 @@ void DetectMotion :: dmIsGone() {
   return;
 }
 
+void DetectMotion :: dmWait() {
+  Serial.println("[DM4]");
+  if (coffeReady) {
+    state = 5;
+  }
+  return;
+}
+
+void DetectMotion :: dmTakingCoffe() {
+  Serial.println("[DM5]");
+  distance = sonar->getDistance();
+  count = distance > DIST2 ? count + 1 : 0;
+  if (distance < DIST2 || count * myPeriod >= DT4) {
+    coffeTaked = true;
+    coffeReady = false;
+    state = 2;
+    count = 0;
+  }
+
+}
+
 void DetectMotion :: tick() {
-  isPresent = pir->isPresent();
-  if (isPresent) {
+  if (maintenanceActive) {
+    return;
+  }
+  if (reStart) {
+    state = 0;
+    count = 0;
+    isPresent = false;
+    correctDistance = false;
+    coffeTaked = false;
+    reStart = false;
+    return;
+  }
+  if (pir->isPresent() && state == 0) {
     Serial.println("Presenza Rilevata dal PIR");
+    isPresent = true;
     state = 1;
     count = 0;
     return;
   }
   switch (state) {
+    case 0:
+      Serial.println("[DM0]");
+      break;
     case 1:
       dmIsNear();
       break;
@@ -90,6 +136,12 @@ void DetectMotion :: tick() {
       break;
     case 3:
       dmIsGone();
+      break;
+    case 4:
+      dmWait();
+      break;
+    case 5:
+      dmTakingCoffe();
       break;
   }
 }

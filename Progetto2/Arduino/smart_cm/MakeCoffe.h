@@ -5,6 +5,8 @@
 #include "Led.h"
 extern bool newCoffe;
 extern bool coffeReady;
+extern bool maintenanceActive;
+
 class MakeCoffe : public Task {
 
     int pin[3];
