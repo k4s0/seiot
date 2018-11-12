@@ -65,7 +65,7 @@ public enum MessageFromSerial {
 
 		@Override
 		public String getMessageToPrint() {
-			return "refresh";
+			return "";
 		}
 		
 	};

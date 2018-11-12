@@ -41,26 +41,22 @@ public class CoffeMachineComunicator {
 					while (true) {
 						if (serialChannel.isMsgAvailable()) {
 							String msg = serialChannel.receiveMsg().trim();
-							/*msg = MessageFromSerial.getCorrectMessage(msg);
-							System.out.println(msg);
-							if (!msg.equals("")) {
-								view.printMessage(msg);
-								if ((msg).equals(MessageFromSerial.NOMORECOFFE.getMessageToPrint())) {
-									System.out.println(
-											"[CoffeMachineComunicator] " + MessageFromSerial.getCorrectMessage(msg));
+							if (MessageFromSerial.isACorrectMessage(msg)) {
+								view.printMessage(MessageFromSerial.getCorrectMessage(msg));
+								if (msg.equals(MessageFromSerial.NOMORECOFFE.getId())) {
+									view.refreshSugar();
 									canRefillCoffe = true;
+								} else if (msg.equals(MessageFromSerial.REFRESH.getId())
+										|| msg.equals(MessageFromSerial.MAKINGCOFFE.getId())) {
+									view.refreshSugar();
 								}
-								if((msg).equals(MessageFromSerial.REFRESH.getMessageToPrint())) {
-									view.printMessage("");
+							} else {
+								try {
+									view.printSugarLevel(Integer.parseInt(msg));
+								} catch (Exception e) {
+									System.out.println(msg);
 								}
-							}*/
-							if(msg.equals("n")) {
-								view.printMessage(MessageFromSerial.getCorrectMessage(msg));
-							} else if( msg.equals("w")) {
-
-								view.printMessage(MessageFromSerial.getCorrectMessage(msg));
 							}
-
 						}
 					}
 				} catch (Exception e) {

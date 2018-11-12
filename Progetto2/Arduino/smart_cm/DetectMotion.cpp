@@ -1,12 +1,7 @@
 #include "DetectMotion.h"
 #include "Arduino.h"
+#include "config.h"
 
-#define DIST1 0.3
-#define DIST2 0.1
-#define DT1 5000
-#define DT2A 5000
-#define DT2B 5000
-#define DT4 5000
 
 DetectMotion :: DetectMotion(int pinPir, int pinTrig, int pinEcho) {
   this->pinPir = pinPir;
@@ -25,18 +20,26 @@ void DetectMotion :: init(int period) {
 }
 
 void DetectMotion :: dmIsNear() {
+#ifdef __DEBUG__
   Serial.println("DM1");
+#endif
   distance = sonar->getDistance();
   if (distance <= DIST1) {
+#ifdef __DEBUG__
     Serial.println("[DM1]Distanza giusta dist-> " + String(distance));
+#endif
     count++;
   } else {
     count = 0;
+#ifdef __DEBUG__
     Serial.println("[DM1]Distanza sbagliata");
+#endif
     correctDistance = false;
     isPresent = pir->isPresent();
     if (!isPresent) {
+#ifdef __DEBUG__
       Serial.println("[DM1]Nessuna presenza sul PIR");
+#endif
       state = 0;
       return;
     }
@@ -50,7 +53,9 @@ void DetectMotion :: dmIsNear() {
 }
 
 void DetectMotion :: dmIsFar() {
+#ifdef __DEBUG__
   Serial.println("[DM2] " + String(newCoffe));
+#endif
   if (newCoffe) {
     count = 0;
     state = 4;
@@ -67,7 +72,10 @@ void DetectMotion :: dmIsFar() {
 }
 
 void DetectMotion :: dmIsGone() {
+#ifdef __DEBUG__
   Serial.println("[DM3]");
+#endif
+
   if (count * myPeriod > DT2B) {
     isPresent = false;
     count = 0;
@@ -84,7 +92,11 @@ void DetectMotion :: dmIsGone() {
 }
 
 void DetectMotion :: dmWait() {
+#ifdef __DEBUG__
+
   Serial.println("[DM4]");
+#endif
+
   if (coffeReady) {
     state = 5;
   }
@@ -92,7 +104,9 @@ void DetectMotion :: dmWait() {
 }
 
 void DetectMotion :: dmTakingCoffe() {
+#ifdef __DEBUG__
   Serial.println("[DM5]");
+#endif
   distance = sonar->getDistance();
   count = distance > DIST2 ? count + 1 : 0;
   if (distance < DIST2 || count * myPeriod >= DT4) {
@@ -114,11 +128,14 @@ void DetectMotion :: tick() {
     isPresent = false;
     correctDistance = false;
     coffeTaked = false;
+    coffeReady = false;
     reStart = false;
     return;
   }
   if (pir->isPresent() && state == 0) {
+#ifdef __DEBUG__
     Serial.println("Presenza Rilevata dal PIR");
+#endif
     isPresent = true;
     state = 1;
     count = 0;
@@ -126,7 +143,10 @@ void DetectMotion :: tick() {
   }
   switch (state) {
     case 0:
-      Serial.println("[DM0]");
+#ifdef __DEBUG__
+      Serial.println("Presenza Rilevata dal PIR");
+#endif
+
       break;
     case 1:
       dmIsNear();

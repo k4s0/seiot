@@ -20,6 +20,7 @@ class MainTask : public Task {
   private:
     int pinPot;
     int pinButton;
+    int firstTimeReady;
     Potentiometer *pot;
     Button *button;
     MainState state;

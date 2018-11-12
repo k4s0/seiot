@@ -4,7 +4,7 @@
 Pir :: Pir(int pin) {
   this->pin = pin;
   pinMode(pin, INPUT);
-  delay(3000);
+  delay(30000);
 }
 
 bool Pir:: isPresent() {

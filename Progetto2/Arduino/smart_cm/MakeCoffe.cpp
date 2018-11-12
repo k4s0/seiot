@@ -1,7 +1,8 @@
 #include "MakeCoffe.h"
 #include "Arduino.h"
+#include "config.h"
 
-#define TIME_LED_ON 1000
+
 
 MakeCoffe :: MakeCoffe(int pin0, int pin1, int pin2) {
   this->pin[0] = pin0;
@@ -19,13 +20,16 @@ void MakeCoffe :: init(int period) {
 }
 
 void MakeCoffe :: tick() {
-  if(maintenanceActive){
+  if (maintenanceActive) {
     return;
   }
   if (state == -1 && newCoffe) {
     state = 0;
     newCoffe = false;
+#ifdef __DEBUG__
     Serial.println("LED 1");
+#endif
+
     led[state]->switchOn();
     return;
   }
@@ -44,7 +48,9 @@ void MakeCoffe :: tick() {
     }
 
     if (state != 0) led[state - 1]->switchOff();
+#ifdef __DEBUG__
     Serial.println("LED " + String(state));
+#endif
     led[state]->switchOn();
   }
 }

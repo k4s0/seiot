@@ -3,17 +3,20 @@
 #include "MsgService.h"
 #include "Button.h"
 #include "Potentiometer.h"
+#include "config.h"
 #include <avr/sleep.h>
 #include <avr/power.h>
+
 
 MainTask :: MainTask(int pinPot, int pinBut) {
   this->pinPot = pinPot;
   this->pinButton = pinBut;
+  this->firstTimeReady = 0;
 }
 
 void MainTask :: init(int period) {
   Task::init(period);
-  /* pot = new Potentiometer(pinPot, 0, 5);*/
+  pot = new Potentiometer(pinPot, 0, 5);
   button = new Button(pinButton);
   state = MainState::STANDBY;
   MsgService.init();
@@ -23,10 +26,11 @@ void MainTask :: init(int period) {
 void MainTask :: tick() {
 
   if (state == MainState::STANDBY) {
-    Serial.println("STANDBY");
+#ifdef __DEBUG__
+    Serial.println("[MainTask]STANDBY");
+#endif
     reStart = false;
     if (!isPresent) {
-      Serial.println("[MAINTASK]Entro in modalità riposo");
       set_sleep_mode(SLEEP_MODE_IDLE);
       sleep_enable();
       power_adc_disable();
@@ -38,39 +42,46 @@ void MainTask :: tick() {
       sleep_disable();
       power_all_enable();
     } else {
-      Serial.println("[MAINTASK]Cambio stato perchè ho rilevato la presenza");
       state = MainState::ON;
     }
     return;
   }
 
   if (state == MainState::ON) {
-    Serial.println("ON");
+#ifdef __DEBUG__
+    Serial.println("[MainTask]ON");
+#endif
     if (correctDistance) {
-      Serial.println("[MAINTASK]La distanza è corretta, cambio stato");
       state = MainState::READY;
       MsgService.sendMsg("w");
     } else if (!isPresent) {
-      Serial.println("[MAINTASK]non c'è più nessuno");
+      MsgService.sendMsg("t");
       state = MainState::STANDBY;
     }
     return;
   }
 
   if (state == MainState::READY) {
+#ifdef __DEBUG__
     Serial.println("READY");
-    /* if (prevPotValue != pot->getValue()) {
-       prevPotValue = pot->getValue();
-       Serial.println("Valore zucchero:" + String(prevPotValue));
-      }*/
+#endif
+    int newValue = pot->getValue();
+    if (prevPotValue != newValue) {
+      prevPotValue = newValue;
+      MsgService.sendMsg(String(prevPotValue));
+    }
     if (button->isPressed()) {
+#ifdef __DEBUG__
       Serial.println("[MAINTASK]Bottone premuto, fai il caffe");
+#endif
       newCoffe = true;
       state = MainState::MAKECOFFE;
       MsgService.sendMsg("m");
     }
-    if (!correctDistance) {
+    if (!correctDistance) { //potrebbe verificarsi un errore
+#ifdef __DEBUG__
       Serial.println("[MAINTASK]La distanza non è corretta, torno ad ON");
+#endif
       state = MainState::ON;
       MsgService.sendMsg("t");
     }
@@ -78,29 +89,39 @@ void MainTask :: tick() {
   }
 
   if (state == MainState::MAKECOFFE) {
+#ifdef __DEBUG__
     Serial.println("MAKECOFFE");
+#endif
     if (coffeReady) {
-      MsgService.sendMsg("r");
+#ifdef __DEBUG__
       Serial.println("[MAINTASK]il caffè è pronto, puoi prenderlo");
+#endif
+      MsgService.sendMsg("r");
       numCoffe--;
       state = MainState::TAKECOFFE;
-      MsgService.sendMsg("t");
     }
     return;
   }
 
   if (state == MainState::TAKECOFFE) {
+#ifdef __DEBUG__
     Serial.println("TAKECOFFE");
     Serial.println("[MAINTASK]puoi prendere il caffe");
+#endif
     if (numCoffe <= 0) {
+#ifdef __DEBUG__
       Serial.println("[MAINTASK]non ci sono più caffe->mant");
+#endif
       state = MainState::MAINTENANCE;
       MsgService.sendMsg("n");
       maintenanceActive = true;
+      coffeTaked = false;
       return;
     }
     else if (coffeTaked) {
+#ifdef __DEBUG__
       Serial.println("[MAINTASK]Hai preso il caffe");
+#endif
       state = MainState::READY;
       MsgService.sendMsg("w");
       coffeTaked = false;
@@ -108,7 +129,9 @@ void MainTask :: tick() {
   }
 
   if (state == MainState::MAINTENANCE) {
+#ifdef __DEBUG__
     Serial.println("MAINTENANCE");
+#endif
     if (MsgService.isMsgAvailable()) {
       Msg* msg = MsgService.receiveMsg();
       if (msg->getContent() == "j") {
@@ -117,7 +140,9 @@ void MainTask :: tick() {
       delete msg;
     }
     if (numCoffe > 0) {
+#ifdef __DEBUG__
       Serial.println("[MAINTASK]Hai fatto fillup, stato->ready");
+#endif
       state = MainState::STANDBY;
       maintenanceActive = false;
       reStart = true;

@@ -9,5 +9,5 @@ Potentiometer :: Potentiometer(int pin, int bot, int top) {
 }
 
 int Potentiometer :: getValue() {
-  return map(digitalRead(pin), 0, 1023, bot, top);
+  return map(analogRead(pin), 0, 1023, bot, top);
 }

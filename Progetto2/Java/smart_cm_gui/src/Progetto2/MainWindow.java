@@ -28,7 +28,7 @@ public class MainWindow extends Application {
     public void start(final Stage primaryStage) {
         this.mainWindow.setHeight(HEIGHT);
         this.mainWindow.setWidth(WIDTH);
-        this.mainWindow.setTitle("Space Impact Redux");
+        this.mainWindow.setTitle("Coffe Machine");
         this.mainWindow.centerOnScreen();
         this.mainWindow.setResizable(false);
         this.mainWindow.setScene(MainScene.get(this.mainWindow));
