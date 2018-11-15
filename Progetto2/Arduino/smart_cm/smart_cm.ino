@@ -1,7 +1,7 @@
 #include "Scheduler.h"
 #include "MakeCoffe.h"
 #include "DetectMotion.h"
-#include "MainTask.h"
+#include "UserHandler.h"
 
 bool isPresent = false;
 bool correctDistance = false;
@@ -15,10 +15,6 @@ bool reStart = false;
 
 Scheduler sched;
 
-void refill(){
-  numCoffe = 10;
-}
-
 void setup() {
   Serial.begin(9600);
   sched.init(25);
@@ -26,13 +22,11 @@ void setup() {
   mc->init(100);
   Task* dm = new DetectMotion(6, 7, 8);
   dm->init(25);
-  Task* mt = new MainTask(A0, 9);
+  Task* mt = new UserHandler(A0, 9);
   mt->init(50);
   sched.addTask(dm);
   sched.addTask(mc);
   sched.addTask(mt);
-  attachInterrupt(0, refill, FALLING);
-
 }
 
 void loop() {

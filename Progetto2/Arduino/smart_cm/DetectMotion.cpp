@@ -21,25 +21,22 @@ void DetectMotion :: init(int period) {
 
 void DetectMotion :: dmIsNear() {
 #ifdef __DEBUG__
-  Serial.println("DM1");
+  Serial.println("[DetectMotion]DM1");
 #endif
   distance = sonar->getDistance();
   if (distance <= DIST1) {
-#ifdef __DEBUG__
-    Serial.println("[DM1]Distanza giusta dist-> " + String(distance));
-#endif
     count++;
+#ifdef __DEBUG__
+    Serial.println("[DM1]Distance " + String(distance));
+#endif
   } else {
     count = 0;
-#ifdef __DEBUG__
-    Serial.println("[DM1]Distanza sbagliata");
-#endif
     correctDistance = false;
+#ifdef __DEBUG__
+    Serial.println("[DM1]Uncorrect Distance");
+#endif
     isPresent = pir->isPresent();
     if (!isPresent) {
-#ifdef __DEBUG__
-      Serial.println("[DM1]Nessuna presenza sul PIR");
-#endif
       state = 0;
       return;
     }
@@ -54,7 +51,7 @@ void DetectMotion :: dmIsNear() {
 
 void DetectMotion :: dmIsFar() {
 #ifdef __DEBUG__
-  Serial.println("[DM2] " + String(newCoffe));
+  Serial.println("[DetectMotion][DM2]");
 #endif
   if (newCoffe) {
     count = 0;
@@ -73,7 +70,7 @@ void DetectMotion :: dmIsFar() {
 
 void DetectMotion :: dmIsGone() {
 #ifdef __DEBUG__
-  Serial.println("[DM3]");
+  Serial.println("[DetectMotion][DM3]");
 #endif
 
   if (count * myPeriod > DT2B) {
@@ -94,9 +91,8 @@ void DetectMotion :: dmIsGone() {
 void DetectMotion :: dmWait() {
 #ifdef __DEBUG__
 
-  Serial.println("[DM4]");
+  Serial.println("[DetectMotion][DM4]");
 #endif
-
   if (coffeReady) {
     state = 5;
   }
@@ -105,7 +101,7 @@ void DetectMotion :: dmWait() {
 
 void DetectMotion :: dmTakingCoffe() {
 #ifdef __DEBUG__
-  Serial.println("[DM5]");
+  Serial.println("[DetectMotion][DM5]");
 #endif
   distance = sonar->getDistance();
   count = distance > DIST2 ? count + 1 : 0;
@@ -134,7 +130,7 @@ void DetectMotion :: tick() {
   }
   if (pir->isPresent() && state == 0) {
 #ifdef __DEBUG__
-    Serial.println("Presenza Rilevata dal PIR");
+    Serial.println("[DetectMotion]Presence");
 #endif
     isPresent = true;
     state = 1;
@@ -142,12 +138,6 @@ void DetectMotion :: tick() {
     return;
   }
   switch (state) {
-    case 0:
-#ifdef __DEBUG__
-      Serial.println("Presenza Rilevata dal PIR");
-#endif
-
-      break;
     case 1:
       dmIsNear();
       break;
