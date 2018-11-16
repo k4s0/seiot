@@ -5,7 +5,9 @@
 #include "Task.h" 
 
 #define MAX_TASKS 10
-
+/*
+ * Scheduler object rapresentation.
+ */
 class Scheduler {
 private:
     int basePeriod;

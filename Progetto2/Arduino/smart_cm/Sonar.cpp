@@ -6,7 +6,7 @@ Sonar :: Sonar(int analogPin1, int analogPin2) {
   this->pinEcho = analogPin2;
   pinMode(pinEcho, INPUT);
   pinMode(pinTrig, OUTPUT);
-  average = 0;
+  average = 0;     
 }
 
 float Sonar :: getDistance() {

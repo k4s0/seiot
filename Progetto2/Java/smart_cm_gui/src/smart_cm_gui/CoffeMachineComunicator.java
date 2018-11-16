@@ -1,5 +1,8 @@
 package smart_cm_gui;
 
+/**
+ * Class handle the comunication with Arduino.
+ */
 public class CoffeMachineComunicator {
 
 	private CoffeMachineView view;
@@ -7,7 +10,7 @@ public class CoffeMachineComunicator {
 	private volatile boolean canRefillCoffe;
 
 	public CoffeMachineComunicator(String port, int rate) throws Exception {
-		this.serialChannel = new SerialCommChannel("COM9", rate);
+		this.serialChannel = new SerialCommChannel(port, rate);
 	}
 
 	void setView(CoffeMachineViewImpl view) throws Exception {
@@ -16,6 +19,10 @@ public class CoffeMachineComunicator {
 
 	}
 
+	/**
+	 * Communicate to Arduino that coffe is refilled.
+	 * Don't do nothing if the system is not in maintenace mode
+	 */
 	public synchronized void coffeRefill() {
 		if (this.canRefillCoffe) {
 			this.canRefillCoffe = false;
@@ -24,6 +31,9 @@ public class CoffeMachineComunicator {
 		}
 	}
 
+	/**
+	 * Start arduino communication thread
+	 */
 	public void startCommuncation() {
 		Thread t = new Thread(new Runnable() {
 			@Override

@@ -5,6 +5,7 @@
 #include "Pir.h"
 #include "Sonar.h"
 
+
 extern bool isPresent;
 extern bool correctDistance;
 extern bool maintenanceActive;
@@ -13,6 +14,9 @@ extern bool coffeReady;
 extern bool coffeTaked;
 extern bool newCoffe;
 
+/*
+ * Task that handle the user movement.
+ */
 class DetectMotion : public Task {
 private:
     int pinPir; 

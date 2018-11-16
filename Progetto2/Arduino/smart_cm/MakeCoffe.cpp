@@ -20,9 +20,11 @@ void MakeCoffe :: init(int period) {
 }
 
 void MakeCoffe :: tick() {
+  /*if maintenance is active system don't do nothing*/
   if (maintenanceActive) {
     return;
   }
+  /*start the presentatio*/
   if (state == -1 && newCoffe) {
     state = 0;
     newCoffe = false;
@@ -33,7 +35,8 @@ void MakeCoffe :: tick() {
     led[state]->switchOn();
     return;
   }
-
+  
+  /*select the next led to turn on*/
   if (state >= 0) {
     int prec = state;
     state = count * myPeriod >= TIME_LED_ON ? state + 1 : state;
@@ -41,6 +44,7 @@ void MakeCoffe :: tick() {
 
     state = state == 3 ? -1 : state;
 
+    /*stop the presentation*/
     if (state == -1) {
       coffeReady = true;
       led[2]->switchOff();

@@ -17,6 +17,7 @@ bool Scheduler::addTask(Task* task) {
 }
 
 void Scheduler::schedule() {
+  /*wait for the next timer interrupt*/
   timer.waitForNextTick();
   for (int i = 0; i < nTasks; i++) {
     if (taskList[i]->updateAndCheckTime(basePeriod)) {

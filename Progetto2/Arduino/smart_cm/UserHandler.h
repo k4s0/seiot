@@ -14,6 +14,9 @@ extern int numCoffe;
 extern bool reStart;
 extern bool maintenanceActive;
 
+/*
+ * class handle about user request and display system information.
+ */
 enum class MainState{STANDBY, ON, READY, MAKECOFFE, TAKECOFFE,MAINTENANCE};
 
 class UserHandler : public Task {

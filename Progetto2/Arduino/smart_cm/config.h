@@ -1,6 +1,9 @@
 #ifndef __CONFIG__
 #define __CONFIG__
 
+/*configuration file*/
+
+
 //#define __DEBUG__
 #define DIST1 0.3
 #define DIST2 0.1

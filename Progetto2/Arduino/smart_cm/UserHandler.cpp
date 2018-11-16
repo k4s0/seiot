@@ -30,6 +30,7 @@ void UserHandler :: tick() {
 #ifdef __DEBUG__
     Serial.println("[MainTask]STANDBY");
 #endif
+    /*no one is present and system is on sleep*/
     if (!isPresent) {
       set_sleep_mode(SLEEP_MODE_IDLE);
       sleep_enable();
@@ -47,10 +48,12 @@ void UserHandler :: tick() {
     return;
   }
 
+  /*ON*/
   if (state == MainState::ON) {
 #ifdef __DEBUG__
     Serial.println("[MainTask]ON");
 #endif
+    /*someone stay in front of the machine. Switch in state READY*/
     if (correctDistance) {
       state = MainState::READY;
       MsgService.sendMsg("w");
@@ -61,10 +64,12 @@ void UserHandler :: tick() {
     return;
   }
 
+  /*READY*/
   if (state == MainState::READY) {
 #ifdef __DEBUG__
     Serial.println("[MainTask]READY");
 #endif
+    /*if potetiometer value change send a message to the gui*/
     int newValue = pot->getValue();
     if (prevPotValue != newValue) {
       prevPotValue = newValue;
@@ -73,12 +78,13 @@ void UserHandler :: tick() {
       MsgService.sendMsg(String(prevPotValue));
       firstTimeReady = 1;
     }
+    /*if button is press make a new coffe*/
     if (button->isPressed()) {
       newCoffe = true;
       state = MainState::MAKECOFFE;
       MsgService.sendMsg("m");
       firstTimeReady = 0;
-    }else if (!correctDistance) { //potrebbe verificarsi un errore
+    }else if (!correctDistance) { 
       state = MainState::ON;
       firstTimeReady = 0;
       MsgService.sendMsg("t");
@@ -86,10 +92,12 @@ void UserHandler :: tick() {
     return;
   }
 
+  /*coffe machine is making a coffe*/
   if (state == MainState::MAKECOFFE) {
 #ifdef __DEBUG__
     Serial.println("[MainTask]MAKECOFFE");
 #endif
+    /*coffe is done. Switch to TAKECOFFE*/
     if (coffeReady) {
       MsgService.sendMsg("r");
       numCoffe--;
@@ -98,10 +106,12 @@ void UserHandler :: tick() {
     return;
   }
 
+  /*Wait user take a coffe*/
   if (state == MainState::TAKECOFFE) {
 #ifdef __DEBUG__
     Serial.println("[MainTask]TAKECOFFE");
 #endif
+    /*No more coffe switch to maintenance*/
     if (numCoffe <= 0) {
       state = MainState::MAINTENANCE;
       MsgService.sendMsg("n");
@@ -109,6 +119,7 @@ void UserHandler :: tick() {
       coffeTaked = false;
       return;
     }
+    /*coffe is taked. Switch to ready*/
     else if (coffeTaked) {
       state = MainState::READY;
       MsgService.sendMsg("w");
@@ -119,6 +130,7 @@ void UserHandler :: tick() {
     }
   }
 
+  /*Wait the message from GUI coffe is refilled*/
   if (state == MainState::MAINTENANCE) {
     if (MsgService.isMsgAvailable()) {
       Msg* msg = MsgService.receiveMsg();
@@ -130,6 +142,7 @@ void UserHandler :: tick() {
       }
       delete msg;
     }
+    /*Coffe refilled restart the system*/
     if (numCoffe > 0) {
       state = MainState::STANDBY;
       maintenanceActive = false;

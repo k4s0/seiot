@@ -9,7 +9,7 @@ class Sonar {
   private:
     int pinTrig;
     int pinEcho;
-    float average;
+    float average; //waited avearage with previus values
 };
 
 #endif
